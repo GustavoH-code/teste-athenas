@@ -15,12 +15,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('auth/login', [App\Http\Controllers\Api\AuthController::class, 'login']);
+Route::post('auth/register', [App\Http\Controllers\Api\AuthController::class, 'register']);
 
-Route::controller(UserController::class)->group(function(){
+Route::group(['middleware'=>'auth:api'], function(){
     Route::get('users', [App\Http\Controllers\Api\UserController::class, 'index']);
     Route::get('users/{id}', [App\Http\Controllers\Api\UserController::class, 'show']);
-    Route::post('users', [App\Http\Controllers\Api\UserController::class, 'store']);
     Route::put('users/{id}', [App\Http\Controllers\Api\UserController::class, 'update']);
     Route::delete('users/{id}', [App\Http\Controllers\Api\UserController::class, 'destroy']);
-
 });

@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Validator;
+
 
 class UserController extends Controller
 {
     public function __construct()
     {
-        // $this->middleware('auth:api');
+        $this->middleware('auth:api', ['except' => ['login','register']]);
     }
     /**
      * Display a listing of the resource.
@@ -24,23 +26,6 @@ class UserController extends Controller
         return response()->json($users);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|unique',
-            'category' => 'required',
-            'password' => 'required'
-        ]);
-
-        return User::create($request->all());
-    }
 
     /**
      * Display the specified resource.

@@ -7,14 +7,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
-
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
 
     public function __construct()
     {
-        // $this->middleware('auth:api', ['except' => ['login','register']]);
+        $this->middleware('auth:api', ['except' => ['login','register']]);
     }
 
     public function login(Request $request)
@@ -23,6 +23,7 @@ class AuthController extends Controller
             'email' => 'required|string|email',
             'password' => 'required|string'
         ]);
+        
         $credentials = $request->only('email', 'password');
 
         $token = Auth::attempt($credentials);
@@ -37,7 +38,7 @@ class AuthController extends Controller
         return response()->json([
                 'status' => 'success',
                 'user' => $user,
-                'authorisation' => [
+                'authorization' => [
                     'token' => $token,
                     'type' => 'bearer',
                 ]
@@ -46,28 +47,38 @@ class AuthController extends Controller
     }
 
     public function register(Request $request){
-        $request->validate([
+
+        $validator = Validator::make($request->all(),[
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6',
+            'email' => 'required|unique:users|string|email|max:255',
+            'category_id' => 'required',
+            'password' => 'required|string|min:6'
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        $token = Auth::login($user);
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User created successfully',
-            'user' => $user,
-            'authorisation' => [
-                'token' => $token,
-                'type' => 'bearer',
-            ]
-        ]);
+        if($validator->fails()){
+            return response()->json([
+                'status' => 422,
+                'errors' => $validator->messages()
+            ], 422);
+        }else{
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'category_id' => $request->category_id,
+                'password' => Hash::make($request->password),
+            ]);
+    
+            $token = Auth::login($user);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User created successfully',
+                'user' => $user,
+                'authorization' => [
+                    'token' => $token,
+                    'type' => 'bearer',
+                ]
+            ]);
+        }  
     }
 
 }

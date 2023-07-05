@@ -55,7 +55,7 @@ Copie o campo o código do campo "token" e cole no header da requisição para a
 ## Rotas
 ### Novo usuário
 ```
-POST http://localhost/teste-athenas/public/api/users HTTP/1.1
+POST http://localhost/teste-athenas/public/auth/register HTTP/1.1
 Content-Type: multipart/form-data
 Accept: application/json
 ```
